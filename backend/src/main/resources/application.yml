@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: expense-assistant
+
+server:
+  port: 8080
+
+app:
+  timezone: Asia/Kolkata
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+management:
+  endpoint:
+    health:
+      show-details: always
