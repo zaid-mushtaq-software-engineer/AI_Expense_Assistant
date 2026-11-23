@@ -7,6 +7,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.expenseassistant.common.response.PageResponse;
+import com.expenseassistant.expense.dto.ExpenseFilter;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
 import com.expenseassistant.common.exception.ResourceNotFoundException;
 import com.expenseassistant.common.exception.ValidationFailedException;
 import com.expenseassistant.expense.dto.CreateExpenseRequest;
@@ -22,12 +28,14 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ExpenseServiceTest {
@@ -100,6 +108,85 @@ class ExpenseServiceTest {
 
         verify(expenseRepository, never()).save(any());
         verify(userRepository, never()).findById(any());
+    }
+
+    @Test
+    void search_rejectsFromAfterTo() {
+        ExpenseFilter filter =
+                new ExpenseFilter(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 1, 1), null, null);
+
+        assertThatThrownBy(() -> expenseService.search(1L, filter, 0, 20, null))
+                .isInstanceOf(ValidationFailedException.class)
+                .hasMessage("from must be on or before to");
+
+        verify(expenseRepository, never()).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
+    void search_rejectsInvalidSortField() {
+        ExpenseFilter filter = new ExpenseFilter(null, null, null, null);
+
+        assertThatThrownBy(() -> expenseService.search(1L, filter, 0, 20, "unknown,desc"))
+                .isInstanceOf(ValidationFailedException.class)
+                .hasMessageContaining("Invalid sort field");
+    }
+
+    @Test
+    void search_returnsMappedPage() {
+        User user = new User("Dev", "dev@example.com", "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
+        Expense expense = new Expense(
+                user, new BigDecimal("10.00"), ExpenseCategory.FOOD, "Snack", LocalDate.now(CLOCK));
+        when(expenseRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(expense), Pageable.ofSize(20), 1));
+
+        PageResponse<ExpenseResponse> response =
+                expenseService.search(1L, new ExpenseFilter(null, null, null, null), 0, 20, null);
+
+        assertThat(response.content()).hasSize(1);
+        assertThat(response.totalElements()).isEqualTo(1);
+        assertThat(response.page()).isZero();
+        assertThat(response.size()).isEqualTo(20);
+    }
+
+    @Test
+    void get_returnsMappedResponse() {
+        User user = new User("Dev", "dev@example.com", "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
+        LocalDate expenseDate = LocalDate.of(2026, 11, 22);
+        Expense expense = new Expense(
+                user, new BigDecimal("500.00"), ExpenseCategory.FOOD, "Dinner", expenseDate);
+        Instant now = Instant.parse("2026-11-23T08:15:30Z");
+        ReflectionTestUtils.setField(expense, "id", 5012L);
+        ReflectionTestUtils.setField(expense, "createdAt", now);
+        ReflectionTestUtils.setField(expense, "updatedAt", now);
+
+        when(expenseRepository.findByIdAndUserId(5012L, 1L)).thenReturn(Optional.of(expense));
+
+        ExpenseResponse response = expenseService.get(1L, 5012L);
+
+        assertThat(response.id()).isEqualTo(5012L);
+        assertThat(response.amount()).isEqualByComparingTo("500.00");
+        assertThat(response.category()).isEqualTo(ExpenseCategory.FOOD);
+        assertThat(response.description()).isEqualTo("Dinner");
+        assertThat(response.expenseDate()).isEqualTo(expenseDate);
+        verify(expenseRepository).findByIdAndUserId(5012L, 1L);
+    }
+
+    @Test
+    void get_unknownId_notFound() {
+        when(expenseRepository.findByIdAndUserId(999L, 1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> expenseService.get(1L, 999L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Expense not found");
+    }
+
+    @Test
+    void get_otherUsersExpense_notFound() {
+        when(expenseRepository.findByIdAndUserId(5012L, 2L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> expenseService.get(2L, 5012L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Expense not found");
     }
 
     @Test
