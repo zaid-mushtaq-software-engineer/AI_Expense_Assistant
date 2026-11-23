@@ -1,0 +1,106 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard – AI Expense Assistant</title>
+<style>:root{--ink:#0e1b2c;--bg:#f3f5f8;--card:#fff;--accent:#0f766e;--accent-soft:#e3f3f1;--warn:#b45309;--warn-soft:#fef3c7;--danger:#b42318;--mut:#5b6b7f;--line:#e2e6ec;--r:10px}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:8px;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:#0b5f58}.btn:hover{background:#f7f9fb}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#fff}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--ink);color:#cfd8e3;padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:17px;padding:0 8px 18px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:800}
+.side a{color:#cfd8e3;padding:10px 12px;border-radius:8px;display:flex;gap:10px;align-items:center}
+.side a.on,.side a:hover{background:#1a2c44;color:#fff}
+.side .me{margin-top:auto;padding:10px 12px;font-size:13px;color:#93a3b8}
+.main{padding:26px 30px;max-width:1180px;width:100%}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:24px;margin:0}h2{font-size:16px;margin:0 0 12px}
+.sub{color:var(--mut);margin:2px 0 0}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stat .k{color:var(--mut);font-size:13px}.stat .v{font-size:27px;font-weight:700;margin:4px 0}
+.up{color:var(--danger)}.down{color:var(--accent)}.small{font-size:13px;color:var(--mut)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;background:#f0f3f7;font-size:12.5px;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:11px 6px;border-bottom:1px solid var(--line)}td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+.donutwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.donut{width:150px;height:150px;border-radius:50%;position:relative;flex:none;background:conic-gradient(#ef4444 0 32.5%,#f59e0b 32.5% 58%,#ec4899 58% 74.1%,#3b82f6 74.1% 84.3%,#8b5cf6 84.3% 90.6%,#10b981 90.6% 95.3%,#f97316 95.3% 98.4%,#06b6d4 98.4% 100%)}
+.donut:after{content:"";position:absolute;inset:26px;background:#fff;border-radius:50%}
+.legend{display:grid;gap:6px;font-size:13.5px;flex:1;min-width:150px}
+.legend div{display:flex;justify-content:space-between;gap:10px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:170px;padding-top:8px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.bar i{display:block;width:100%;max-width:44px;background:#b6dcd8;border-radius:6px 6px 0 0}
+.bar.cur i{background:var(--accent)}.bar span{font-size:12px;color:var(--mut)}
+.field{display:grid;gap:5px;margin-bottom:14px}.field label{font-weight:600;font-size:14px}
+.field input{padding:11px 12px;border:1px solid #cbd3dd;border-radius:8px;font:inherit;width:100%}
+.err{color:var(--danger);font-size:13px;min-height:16px}
+@media(max-width:960px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px 12px}.brand{padding:0 10px 0 0}.side .me{display:none}.main{padding:18px 14px}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:520px){.g4{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.rows td:first-child{color:var(--mut);white-space:nowrap}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tools select,.tools input{padding:8px 10px;border:1px solid #cbd3dd;border-radius:8px;font:inherit;background:#fff}
+.ask{background:var(--accent-soft);border-color:#bfe0dc;display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
+</style></head><body>
+<div class="app">
+ <nav class="side"><div class="brand"><span class="logo">₹</span>Expenses</div>
+  <a class="on" href="dashboard.html">Dashboard</a><a href="expenses.html">Expenses</a><a href="analytics.html">Analytics</a><a href="assistant.html">Assistant</a><a href="conversations.html">Chat history</a>
+  <div class="me">Asha Rao<br><a href="auth.html" style="padding:0;color:#93a3b8">Sign out</a></div></nav>
+ <main class="main">
+  <div class="top"><div><h1>November 2026</h1><p class="sub">Your spending so far this month</p></div>
+   <div style="display:flex;gap:8px"><a class="btn" href="assistant.html">Ask the assistant</a><button class="btn pri" id="add">Add expense</button></div></div>
+  <div class="grid g4">
+   <div class="card stat"><div class="k">Spent this month</div><div class="v num">₹38,450</div><div class="small down">₹2,750 less than October</div></div>
+   <div class="card stat"><div class="k">Expenses logged</div><div class="v num">42</div><div class="small">Average ₹1,672 per day</div></div>
+   <div class="card stat"><div class="k">Highest category</div><div class="v">Bills</div><div class="small num">₹12,500 · 32.5%</div></div>
+   <div class="card stat"><div class="k">Yesterday</div><div class="v num">₹1,200</div><div class="small">3 expenses</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+   <div class="card"><h2>Where the money went</h2><div class="donutwrap"><div class="donut" role="img" aria-label="Category split"></div>
+    <div class="legend num">
+     <div><span><i class="dot" style="background:#ef4444"></i> Bills</span><b>₹12,500</b></div>
+     <div><span><i class="dot" style="background:#f59e0b"></i> Food</span><b>₹9,800</b></div>
+     <div><span><i class="dot" style="background:#ec4899"></i> Shopping</span><b>₹6,200</b></div>
+     <div><span><i class="dot" style="background:#3b82f6"></i> Transportation</span><b>₹3,900</b></div>
+     <div><span><i class="dot" style="background:#8b5cf6"></i> Entertainment</span><b>₹2,450</b></div>
+     <div><span><i class="dot" style="background:#10b981"></i> Health</span><b>₹1,800</b></div>
+     <div><span><i class="dot" style="background:#f97316"></i> Travel</span><b>₹1,200</b></div>
+     <div><span><i class="dot" style="background:#06b6d4"></i> Education</span><b>₹600</b></div>
+    </div></div></div>
+   <div class="card"><h2>Last six months</h2><div class="bars num">
+    <div class="bar"><span>₹31k</span><i style="height:69%"></i><span>Jun</span></div>
+    <div class="bar"><span>₹36k</span><i style="height:80%"></i><span>Jul</span></div>
+    <div class="bar"><span>₹29k</span><i style="height:65%"></i><span>Aug</span></div>
+    <div class="bar"><span>₹33k</span><i style="height:74%"></i><span>Sep</span></div>
+    <div class="bar"><span>₹41k</span><i style="height:92%"></i><span>Oct</span></div>
+    <div class="bar cur"><span>₹38k</span><i style="height:85%"></i><span>Nov</span></div></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h2>Recent expenses</h2>
+   <div class="tools"><input placeholder="Search description" id="q" aria-label="Search"><select id="cat" aria-label="Category"><option value="">All categories</option><option>FOOD</option><option>BILLS</option><option>SHOPPING</option><option>TRANSPORTATION</option><option>HEALTH</option></select><input type="date" value="2026-11-01" aria-label="From"><input type="date" value="2026-11-23" aria-label="To"></div>
+   <table class="rows"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="r">Amount</th></tr></thead><tbody id="tb"></tbody></table>
+   <p id="empty" class="small" style="display:none;padding:14px 0">No matches. Clear the filters to see all expenses.</p>
+  </div>
+  <div class="card ask" style="margin-top:16px"><div><b>Prefer typing it?</b><div class="small">Try “I spent ₹320 on an auto ride today.”</div></div><a class="btn pri" href="assistant.html">Open assistant</a></div>
+ </main>
+</div>
+<script>
+const D=[["22 Nov","Dinner","FOOD","#f59e0b",500],["22 Nov","Metro card top-up","TRANSPORTATION","#3b82f6",400],["22 Nov","Pharmacy","HEALTH","#10b981",300],["21 Nov","Electricity bill","BILLS","#ef4444",2450],["20 Nov","Headphones","SHOPPING","#ec4899",3200]];
+const f=n=>"₹"+n.toLocaleString("en-IN");
+function draw(){const q=document.getElementById('q').value.toLowerCase(),c=document.getElementById('cat').value;
+ const r=D.filter(x=>x[1].toLowerCase().includes(q)&&(!c||x[2]===c));
+ document.getElementById('tb').innerHTML=r.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td><span class="chip"><i class="dot" style="background:${x[3]}"></i>${x[2][0]+x[2].slice(1).toLowerCase()}</span></td><td class="r num">${f(x[4])}</td></tr>`).join('');
+ document.getElementById('empty').style.display=r.length?'none':'block'}
+q.oninput=cat.onchange=draw;draw();
+document.getElementById('add').onclick=()=>location.href='expenses.html#new';
+</script></body></html>

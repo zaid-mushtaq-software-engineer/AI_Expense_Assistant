@@ -1,0 +1,28 @@
+# Local MySQL for development (Stage 0B). Charset/collation match docs/DATABASE_DESIGN.md.
+# The Spring app uses expense_app (never root). Credentials align with .env.example.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: expense-assistant-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_local_only
+      MYSQL_DATABASE: expense_assistant
+      MYSQL_USER: expense_app
+      MYSQL_PASSWORD: change_me
+    ports:
+      - "3306:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - expense_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_local_only"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  expense_mysql_data:

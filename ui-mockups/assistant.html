@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Assistant – AI Expense Assistant</title>
+<style>:root{--ink:#0e1b2c;--bg:#f3f5f8;--card:#fff;--accent:#0f766e;--accent-soft:#e3f3f1;--warn:#b45309;--warn-soft:#fef3c7;--danger:#b42318;--mut:#5b6b7f;--line:#e2e6ec;--r:10px}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:8px;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:#0b5f58}.btn:hover{background:#f7f9fb}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#fff}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--ink);color:#cfd8e3;padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:17px;padding:0 8px 18px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:800}
+.side a{color:#cfd8e3;padding:10px 12px;border-radius:8px;display:flex;gap:10px;align-items:center}
+.side a.on,.side a:hover{background:#1a2c44;color:#fff}
+.side .me{margin-top:auto;padding:10px 12px;font-size:13px;color:#93a3b8}
+.main{padding:26px 30px;max-width:1180px;width:100%}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:24px;margin:0}h2{font-size:16px;margin:0 0 12px}
+.sub{color:var(--mut);margin:2px 0 0}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stat .k{color:var(--mut);font-size:13px}.stat .v{font-size:27px;font-weight:700;margin:4px 0}
+.up{color:var(--danger)}.down{color:var(--accent)}.small{font-size:13px;color:var(--mut)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;background:#f0f3f7;font-size:12.5px;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:11px 6px;border-bottom:1px solid var(--line)}td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+.donutwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.donut{width:150px;height:150px;border-radius:50%;position:relative;flex:none;background:conic-gradient(#ef4444 0 32.5%,#f59e0b 32.5% 58%,#ec4899 58% 74.1%,#3b82f6 74.1% 84.3%,#8b5cf6 84.3% 90.6%,#10b981 90.6% 95.3%,#f97316 95.3% 98.4%,#06b6d4 98.4% 100%)}
+.donut:after{content:"";position:absolute;inset:26px;background:#fff;border-radius:50%}
+.legend{display:grid;gap:6px;font-size:13.5px;flex:1;min-width:150px}
+.legend div{display:flex;justify-content:space-between;gap:10px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:170px;padding-top:8px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.bar i{display:block;width:100%;max-width:44px;background:#b6dcd8;border-radius:6px 6px 0 0}
+.bar.cur i{background:var(--accent)}.bar span{font-size:12px;color:var(--mut)}
+.field{display:grid;gap:5px;margin-bottom:14px}.field label{font-weight:600;font-size:14px}
+.field input{padding:11px 12px;border:1px solid #cbd3dd;border-radius:8px;font:inherit;width:100%}
+.err{color:var(--danger);font-size:13px;min-height:16px}
+@media(max-width:960px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px 12px}.brand{padding:0 10px 0 0}.side .me{display:none}.main{padding:18px 14px}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:520px){.g4{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.main{max-width:none;padding:0;height:100vh;overflow:hidden}
+.chatapp{display:grid;grid-template-columns:270px 1fr;height:100%}
+.convs{border-right:1px solid var(--line);background:#fff;padding:16px;overflow:auto}
+.convs a{display:block;padding:10px;border-radius:8px;color:var(--ink);margin-bottom:2px}
+.convs a.on,.convs a:hover{background:var(--accent-soft)}.convs a b{display:block;font-size:14px}.convs a span{font-size:12.5px;color:var(--mut)}
+.pane{display:flex;flex-direction:column;min-width:0;height:100%}
+.head{padding:16px 22px;border-bottom:1px solid var(--line);background:#fff}
+.msgs{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+.m{max-width:620px;padding:11px 14px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.m.u{align-self:flex-end;background:var(--accent);color:#fff;border-color:var(--accent)}
+.tags{margin-top:8px;display:flex;gap:6px}
+.pend{max-width:620px;background:var(--warn-soft);border:1px solid #f3d38a;border-radius:12px;padding:14px}
+.pend .act{display:flex;gap:8px;margin-top:10px}
+.think{align-self:flex-start;color:var(--mut);display:none;gap:8px;align-items:center}
+.think i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:b 1s infinite}.think i:nth-child(2){animation-delay:.15s}.think i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{opacity:.25}}
+.inp{display:flex;gap:10px;padding:14px 22px;background:#fff;border-top:1px solid var(--line)}
+.inp textarea{flex:1;resize:none;border:1px solid #cbd3dd;border-radius:10px;padding:10px 12px;font:inherit;height:46px}
+.sugg{display:flex;gap:8px;flex-wrap:wrap;padding:0 22px 12px;background:#fff}
+.sugg button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 11px;font-size:13px;color:var(--mut)}
+.toggle{display:none}
+@media(max-width:960px){.main{height:auto;overflow:visible}.chatapp{grid-template-columns:1fr;height:auto}.convs{display:none}.convs.open{display:block}.toggle{display:inline-block}.pane{height:calc(100vh - 60px)}}
+</style></head><body>
+<div class="app">
+ <nav class="side"><div class="brand"><span class="logo">₹</span>Expenses</div>
+  <a href="dashboard.html">Dashboard</a><a href="expenses.html">Expenses</a><a href="analytics.html">Analytics</a><a class="on" href="assistant.html">Assistant</a><a href="conversations.html">Chat history</a>
+  <div class="me">Asha Rao<br><a href="auth.html" style="padding:0;color:#93a3b8">Sign out</a></div></nav>
+ <main class="main"><div class="chatapp">
+  <aside class="convs" id="convs"><button class="btn pri" style="width:100%;margin-bottom:12px">New chat</button>
+   <a class="on" href="#"><b>Dinner expense</b><span>Today · Deleted ₹500 dinner…</span></a>
+   <a href="#"><b>October vs November</b><span>Yesterday · Spending is down 6.7%</span></a>
+   <a href="#"><b>Food spending</b><span>18 Nov · You spent ₹9,800 on food</span></a>
+   <a href="#"><b>Pharmacy bill</b><span>12 Nov · Recorded ₹300</span></a></aside>
+  <section class="pane">
+   <div class="head"><button class="btn toggle" onclick="convs.classList.toggle('open')">Chats</button> <b>Dinner expense</b></div>
+   <div class="msgs" id="msgs">
+    <div class="m u">I spent ₹500 on dinner yesterday</div>
+    <div class="m">Recorded ₹500 for Dinner (Food) on 22 Nov.<div class="tags"><span class="chip">Added expense</span></div></div>
+    <div class="m u">What did I spend yesterday?</div>
+    <div class="m">You spent ₹1,200 yesterday across 3 expenses: Dinner ₹500, Metro card top-up ₹400, Pharmacy ₹300.<div class="tags"><span class="chip">Searched expenses</span></div></div>
+    <div class="m u">Which category was highest?</div>
+    <div class="m">Food was your highest category yesterday at ₹500.<div class="tags"><span class="chip">Calculated spending</span></div></div>
+    <div class="m u">Delete the dinner expense</div>
+    <div class="pend" id="pend"><b>Confirm deletion</b><div style="margin-top:4px">Delete ₹500 · Dinner (Food) · 22 Nov 2026?</div><div class="small">Expires in 10 minutes. Nothing changes until you confirm.</div>
+     <div class="act"><button class="btn warn" id="yes">Delete expense</button><button class="btn" id="no">Cancel</button></div></div>
+    <div class="think" id="think"><i></i><i></i><i></i> Checking your expenses…</div>
+   </div>
+   <div class="sugg"><button>How much did I spend this month?</button><button>Compare October and November</button><button>Show food expenses this week</button></div>
+   <form class="inp" id="f"><textarea id="t" placeholder="Type an expense or ask a question" aria-label="Message"></textarea><button class="btn pri">Send</button></form>
+  </section></div></main>
+</div>
+<script>
+const msgs=document.getElementById('msgs'),think=document.getElementById('think');
+function add(txt,cls,chip){const d=document.createElement('div');d.className='m '+(cls||'');d.textContent=txt;if(chip){d.insertAdjacentHTML('beforeend','<div class="tags"><span class="chip">'+chip+'</span></div>')}msgs.insertBefore(d,think);msgs.scrollTop=msgs.scrollHeight}
+function done(txt,chip){document.getElementById('pend').remove();think.style.display='flex';setTimeout(()=>{think.style.display='none';add(txt,'',chip)},700)}
+document.getElementById('yes').onclick=()=>done('Deleted: ₹500 Dinner on 22 Nov.','Deleted expense');
+document.getElementById('no').onclick=()=>done('Okay, I did not change anything.');
+document.getElementById('f').onsubmit=e=>{e.preventDefault();const v=t.value.trim();if(!v)return;add(v,'u');t.value='';think.style.display='flex';setTimeout(()=>{think.style.display='none';add('This is a mockup, so I can’t run that. In the real app the backend answers using your saved expenses.')},900)};
+document.querySelectorAll('.sugg button').forEach(b=>b.onclick=()=>{t.value=b.textContent;t.focus()});
+t.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();f.requestSubmit()}});
+msgs.scrollTop=msgs.scrollHeight;
+</script></body></html>

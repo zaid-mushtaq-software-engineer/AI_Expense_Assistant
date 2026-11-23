@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Expenses – AI Expense Assistant</title><style>:root{--ink:#0e1b2c;--bg:#f3f5f8;--card:#fff;--accent:#0f766e;--accent-soft:#e3f3f1;--warn:#b45309;--warn-soft:#fef3c7;--danger:#b42318;--mut:#5b6b7f;--line:#e2e6ec;--r:10px}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:8px;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:#0b5f58}.btn:hover{background:#f7f9fb}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#fff}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--ink);color:#cfd8e3;padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:17px;padding:0 8px 18px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:800}
+.side a{color:#cfd8e3;padding:10px 12px;border-radius:8px;display:flex;gap:10px;align-items:center}
+.side a.on,.side a:hover{background:#1a2c44;color:#fff}
+.side .me{margin-top:auto;padding:10px 12px;font-size:13px;color:#93a3b8}
+.main{padding:26px 30px;max-width:1180px;width:100%}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:24px;margin:0}h2{font-size:16px;margin:0 0 12px}
+.sub{color:var(--mut);margin:2px 0 0}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stat .k{color:var(--mut);font-size:13px}.stat .v{font-size:27px;font-weight:700;margin:4px 0}
+.up{color:var(--danger)}.down{color:var(--accent)}.small{font-size:13px;color:var(--mut)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;background:#f0f3f7;font-size:12.5px;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:11px 6px;border-bottom:1px solid var(--line)}td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+.donutwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.donut{width:150px;height:150px;border-radius:50%;position:relative;flex:none;background:conic-gradient(#ef4444 0 32.5%,#f59e0b 32.5% 58%,#ec4899 58% 74.1%,#3b82f6 74.1% 84.3%,#8b5cf6 84.3% 90.6%,#10b981 90.6% 95.3%,#f97316 95.3% 98.4%,#06b6d4 98.4% 100%)}
+.donut:after{content:"";position:absolute;inset:26px;background:#fff;border-radius:50%}
+.legend{display:grid;gap:6px;font-size:13.5px;flex:1;min-width:150px}
+.legend div{display:flex;justify-content:space-between;gap:10px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:170px;padding-top:8px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.bar i{display:block;width:100%;max-width:44px;background:#b6dcd8;border-radius:6px 6px 0 0}
+.bar.cur i{background:var(--accent)}.bar span{font-size:12px;color:var(--mut)}
+.field{display:grid;gap:5px;margin-bottom:14px}.field label{font-weight:600;font-size:14px}
+.field input{padding:11px 12px;border:1px solid #cbd3dd;border-radius:8px;font:inherit;width:100%}
+.err{color:var(--danger);font-size:13px;min-height:16px}
+@media(max-width:960px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px 12px}.brand{padding:0 10px 0 0}.side .me{display:none}.main{padding:18px 14px}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:520px){.g4{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tools select,.tools input,.field select,.field textarea{padding:9px 10px;border:1px solid #cbd3dd;border-radius:8px;font:inherit;background:#fff;width:auto}
+.field select,.field textarea{width:100%}.field textarea{resize:vertical;min-height:64px}
+.field input.bad,.field select.bad{border-color:var(--danger)}
+.ib{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 9px;font-size:13px}.ib.d{color:var(--danger)}
+.ov{position:fixed;inset:0;background:rgba(14,27,44,.5);display:none;place-items:center;padding:16px;z-index:20}
+.ov.open{display:grid}
+.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:440px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal h2{font-size:19px;margin-bottom:14px}.mact{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.btn.dng{background:var(--danger);border-color:var(--danger);color:#fff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:9px;display:none;z-index:30}
+.sk{height:14px;border-radius:6px;background:linear-gradient(90deg,#e8ecf1,#f4f6f9,#e8ecf1);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.state{text-align:center;padding:36px 10px;color:var(--mut)}.state b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.banner{background:#fdecea;border:1px solid #f5c2bd;color:var(--danger);padding:12px 14px;border-radius:9px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.seg{display:inline-flex;background:#e8ecf1;border-radius:9px;padding:3px;flex-wrap:wrap}.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-weight:600;color:var(--mut)}.seg button.on{background:#fff;color:var(--ink)}
+.demo{display:flex;gap:8px;align-items:center;margin-bottom:12px}.pager{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:12px 10px;margin:0}.kv dt{color:var(--mut)}.kv dd{margin:0;font-weight:600}
+@media(max-width:600px){.kv{grid-template-columns:1fr}}
+</style></head><body><div class="app"><nav class="side"><div class="brand"><span class="logo">₹</span>Expenses</div><a class="" href="dashboard.html">Dashboard</a><a class="on" href="expenses.html">Expenses</a><a class="" href="analytics.html">Analytics</a><a class="" href="assistant.html">Assistant</a><a class="" href="conversations.html">Chat history</a><div class="me">Asha Rao<br><a href="auth.html" style="padding:0;color:#93a3b8">Sign out</a></div></nav><main class="main">
+<div class="top"><div><h1>Expenses</h1><p class="sub">Add, edit and filter everything you have spent</p></div><button class="btn pri" id="add">Add expense</button></div>
+<div class="card">
+ <div class="tools"><input id="q" placeholder="Search description" aria-label="Search"><select id="cat" aria-label="Category"><option value="">All categories</option><option>FOOD</option><option>TRANSPORTATION</option><option>SHOPPING</option><option>ENTERTAINMENT</option><option>HEALTH</option><option>EDUCATION</option><option>BILLS</option><option>TRAVEL</option><option>OTHER</option></select><input id="from" type="date" value="2026-11-01" aria-label="From"><input id="to" type="date" value="2026-11-30" aria-label="To"><select id="sort" aria-label="Sort"><option value="d">Newest first</option><option value="a">Highest amount</option></select><button class="btn" id="clr">Clear filters</button></div>
+ <div class="demo small">Preview state: <div class="seg" id="seg"><button class="on" data-s="data">Data</button><button data-s="load">Loading</button><button data-s="empty">Empty</button><button data-s="err">Error</button></div></div>
+ <div id="err" class="banner" style="display:none"><span>Couldn’t load expenses. Check your connection and try again.</span><button class="btn" id="retry">Retry</button></div>
+ <div id="tw" style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="r">Amount</th><th class="r">Actions</th></tr></thead><tbody id="tb"></tbody></table></div>
+ <div id="empty" class="state" style="display:none"><b id="et">No expenses yet</b><span id="es">Add your first expense or tell the assistant what you spent.</span></div>
+ <div class="pager small"><span id="cnt"></span><span>Page 1 of 1</span></div>
+</div>
+<div class="ov" id="ov"><form class="modal" id="form" novalidate><h2 id="mt">Add expense</h2>
+ <div class="field"><label for="a">Amount (₹)</label><input id="a" inputmode="decimal" placeholder="500.00"><div class="err" id="ae"></div></div>
+ <div class="field"><label for="c">Category</label><select id="c"><option value="">Select a category</option><option>FOOD</option><option>TRANSPORTATION</option><option>SHOPPING</option><option>ENTERTAINMENT</option><option>HEALTH</option><option>EDUCATION</option><option>BILLS</option><option>TRAVEL</option><option>OTHER</option></select><div class="err" id="ce"></div></div>
+ <div class="field"><label for="ds">Description <span class="small">(optional)</span></label><textarea id="ds" maxlength="255" placeholder="Dinner with friends"></textarea><div class="err" id="dse"></div></div>
+ <div class="field"><label for="dt">Date</label><input id="dt" type="date"><div class="err" id="dte"></div></div>
+ <div class="mact"><button type="button" class="btn" id="cx">Cancel</button><button class="btn pri" id="sv">Save expense</button></div></form></div>
+<div class="ov" id="dov"><div class="modal" role="dialog" aria-modal="true"><h2>Delete this expense?</h2><p id="dm" class="sub" style="margin-bottom:16px"></p><div class="mact"><button class="btn" id="dn">Keep it</button><button class="btn dng" id="dy">Delete expense</button></div></div></div></main></div><div class="toast" id="toast"></div><script>const $=id=>document.getElementById(id);const f=n=>"₹"+Number(n).toLocaleString("en-IN",{minimumFractionDigits:n%1?2:0});function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2200)}
+const COL={FOOD:"#f59e0b",TRANSPORTATION:"#3b82f6",SHOPPING:"#ec4899",ENTERTAINMENT:"#8b5cf6",HEALTH:"#10b981",EDUCATION:"#06b6d4",BILLS:"#ef4444",TRAVEL:"#f97316",OTHER:"#94a3b8"};
+let E=[{id:5012,d:"2026-11-22",s:"Dinner",c:"FOOD",a:500},{id:5011,d:"2026-11-22",s:"Metro card top-up",c:"TRANSPORTATION",a:400},{id:5010,d:"2026-11-22",s:"Pharmacy",c:"HEALTH",a:300},{id:5008,d:"2026-11-21",s:"Electricity bill",c:"BILLS",a:2450},{id:5005,d:"2026-11-20",s:"Headphones",c:"SHOPPING",a:3200},{id:5001,d:"2026-11-18",s:"Movie night",c:"ENTERTAINMENT",a:640},{id:4998,d:"2026-11-15",s:"Online course",c:"EDUCATION",a:1500}];
+let st="data",edit=null,del=null,nid=5013;
+const fd=d=>new Date(d+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+const nice=c=>c[0]+c.slice(1).toLowerCase();
+function rows(){let r=E.filter(x=>x.s.toLowerCase().includes($("q").value.toLowerCase())&&(!$("cat").value||x.c===$("cat").value)&&(!$("from").value||x.d>=$("from").value)&&(!$("to").value||x.d<=$("to").value));
+ r.sort($("sort").value==="a"?(p,q)=>q.a-p.a:(p,q)=>q.d.localeCompare(p.d)||q.id-p.id);return r}
+function draw(){const r=rows(),tb=$("tb");$("err").style.display=st==="err"?"flex":"none";$("tw").style.display=st==="err"?"none":"block";
+ if(st==="load"){tb.innerHTML=Array(5).fill('<tr>'+'<td><div class="sk" style="width:50px"></div></td><td><div class="sk" style="width:140px"></div></td><td><div class="sk" style="width:90px"></div></td><td><div class="sk" style="width:60px;margin-left:auto"></div></td><td></td></tr>').join("");$("empty").style.display="none";$("cnt").textContent="Loading…";return}
+ const list=st==="empty"?[]:r;
+ tb.innerHTML=list.map(x=>`<tr><td class="small">${fd(x.d)}</td><td><a href="expense-details.html">${x.s||"—"}</a></td><td><span class="chip"><i class="dot" style="background:${COL[x.c]}"></i>${nice(x.c)}</span></td><td class="r num">${f(x.a)}</td><td class="r"><button class="ib" data-e="${x.id}">Edit</button> <button class="ib d" data-x="${x.id}">Delete</button></td></tr>`).join("");
+ const none=!list.length&&st!=="err";$("empty").style.display=none?"block":"none";
+ if(none){const filt=st==="data";$("et").textContent=filt?"No matches":"No expenses yet";$("es").textContent=filt?"Clear the filters to see all your expenses.":"Add your first expense or tell the assistant what you spent."}
+ $("cnt").textContent=list.length+" expense"+(list.length===1?"":"s")}
+tb.onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.e)open(+b.dataset.e);if(b.dataset.x){del=+b.dataset.x;const x=E.find(y=>y.id===del);$("dm").textContent=f(x.a)+" · "+x.s+" · "+fd(x.d)+". This can’t be undone.";$("dov").classList.add("open")}};
+function open(id){edit=id||null;const x=E.find(y=>y.id===id)||{a:"",c:"",s:"",d:"2026-11-23"};$("mt").textContent=id?"Edit expense":"Add expense";$("sv").textContent=id?"Save changes":"Save expense";$("a").value=x.a;$("c").value=x.c;$("ds").value=x.s;$("dt").value=x.d;["a","c","dt"].forEach(i=>{$(i).classList.remove("bad");$(i+"e").textContent=""});$("ov").classList.add("open");$("a").focus()}
+$("add").onclick=()=>open();$("cx").onclick=()=>$("ov").classList.remove("open");
+$("form").onsubmit=e=>{e.preventDefault();let ok=true;const v=$("a").value.trim(),a=parseFloat(v);
+ const chk=(i,bad,m)=>{$(i).classList.toggle("bad",bad);$(i+"e").textContent=bad?m:"";if(bad)ok=false};
+ chk("a",!(a>0)||!/^\d+(\.\d{1,2})?$/.test(v),"Enter an amount above 0 with up to 2 decimals");chk("c",!$("c").value,"Choose a category");
+ chk("dt",!$("dt").value||$("dt").value>"2026-11-24","Pick a date that is not in the future");if(!ok)return;
+ const o={d:$("dt").value,s:$("ds").value.trim(),c:$("c").value,a};if(edit)Object.assign(E.find(y=>y.id===edit),o);else E.push({id:nid++,...o});
+ $("ov").classList.remove("open");st="data";seg();draw();toast(edit?"Expense updated":"Expense added")};
+$("dn").onclick=()=>$("dov").classList.remove("open");$("dy").onclick=()=>{E=E.filter(x=>x.id!==del);$("dov").classList.remove("open");draw();toast("Expense deleted")};
+["q","cat","from","to","sort"].forEach(i=>$(i).oninput=draw);$("clr").onclick=()=>{$("q").value="";$("cat").value="";$("from").value="";$("to").value="";draw()};
+function seg(){document.querySelectorAll("#seg button").forEach(b=>b.classList.toggle("on",b.dataset.s===st))}
+$("seg").onclick=e=>{if(e.target.dataset.s){st=e.target.dataset.s;seg();draw()}};$("retry").onclick=()=>{st="data";seg();draw()};
+if(location.hash==="#new")open();if(location.hash==="#edit")open(5012);draw();</script></body></html>
