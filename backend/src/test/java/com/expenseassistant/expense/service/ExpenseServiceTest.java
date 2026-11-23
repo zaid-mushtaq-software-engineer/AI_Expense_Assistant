@@ -7,6 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.mockito.ArgumentCaptor;
+
 import com.expenseassistant.common.response.PageResponse;
 import com.expenseassistant.expense.dto.ExpenseFilter;
 import org.springframework.data.domain.PageImpl;
@@ -16,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import com.expenseassistant.common.exception.ResourceNotFoundException;
 import com.expenseassistant.common.exception.ValidationFailedException;
 import com.expenseassistant.expense.dto.CreateExpenseRequest;
+import com.expenseassistant.expense.dto.UpdateExpenseRequest;
 import com.expenseassistant.expense.dto.ExpenseResponse;
 import com.expenseassistant.expense.entity.Expense;
 import com.expenseassistant.expense.entity.ExpenseCategory;
@@ -187,6 +190,79 @@ class ExpenseServiceTest {
         assertThatThrownBy(() -> expenseService.get(2L, 5012L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Expense not found");
+    }
+
+    @Test
+    void update_appliesAllFields() {
+        User user = new User("Dev", "dev@example.com", "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
+        Expense expense = new Expense(
+                user, new BigDecimal("10.00"), ExpenseCategory.FOOD, "Old", LocalDate.now(CLOCK));
+        ReflectionTestUtils.setField(expense, "id", 7L);
+        UpdateExpenseRequest request = new UpdateExpenseRequest(
+                new BigDecimal("25.50"),
+                ExpenseCategory.BILLS,
+                "Updated",
+                LocalDate.now(CLOCK).minusDays(1));
+
+        when(expenseRepository.findByIdAndUserId(7L, 1L)).thenReturn(Optional.of(expense));
+        when(expenseRepository.save(expense)).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ExpenseResponse response = expenseService.update(1L, 7L, request);
+
+        assertThat(response.amount()).isEqualByComparingTo("25.50");
+        assertThat(response.category()).isEqualTo(ExpenseCategory.BILLS);
+        assertThat(response.description()).isEqualTo("Updated");
+        verify(expenseRepository).save(expense);
+    }
+
+    @Test
+    void update_notFound() {
+        when(expenseRepository.findByIdAndUserId(404L, 1L)).thenReturn(Optional.empty());
+        UpdateExpenseRequest request =
+                new UpdateExpenseRequest(new BigDecimal("1.00"), ExpenseCategory.FOOD, null, LocalDate.now(CLOCK));
+
+        assertThatThrownBy(() -> expenseService.update(1L, 404L, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Expense not found");
+
+        verify(expenseRepository, never()).save(any());
+    }
+
+    @Test
+    void update_rejectsFutureDateBeyondOneDay() {
+        LocalDate tooFar = LocalDate.now(CLOCK).plusDays(2);
+        UpdateExpenseRequest request =
+                new UpdateExpenseRequest(new BigDecimal("1.00"), ExpenseCategory.FOOD, null, tooFar);
+
+        assertThatThrownBy(() -> expenseService.update(1L, 1L, request))
+                .isInstanceOf(ValidationFailedException.class);
+
+        verify(expenseRepository, never()).findByIdAndUserId(any(), any());
+    }
+
+    @Test
+    void delete_removesOwnedExpense() {
+        User user = new User("Dev", "dev@example.com", "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
+        Expense expense = new Expense(
+                user, new BigDecimal("5.00"), ExpenseCategory.FOOD, null, LocalDate.now(CLOCK));
+        when(expenseRepository.findByIdAndUserId(3L, 1L)).thenReturn(Optional.of(expense));
+
+        expenseService.delete(1L, 3L);
+
+        ArgumentCaptor<Expense> captor = ArgumentCaptor.forClass(Expense.class);
+        verify(expenseRepository).delete(captor.capture());
+        assertThat(captor.getValue()).isSameAs(expense);
+    }
+
+    @Test
+    void delete_notFound() {
+        when(expenseRepository.findByIdAndUserId(3L, 1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> expenseService.delete(1L, 3L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Expense not found");
+
+        verify(expenseRepository, never()).delete(org.mockito.ArgumentMatchers.<Expense>any());
     }
 
     @Test

@@ -6,6 +6,8 @@ import com.expenseassistant.common.response.PageResponse;
 import com.expenseassistant.expense.dto.CreateExpenseRequest;
 import com.expenseassistant.expense.dto.ExpenseFilter;
 import com.expenseassistant.expense.dto.ExpenseResponse;
+import com.expenseassistant.expense.dto.ExpenseWriteFields;
+import com.expenseassistant.expense.dto.UpdateExpenseRequest;
 import com.expenseassistant.expense.repository.ExpenseSpecifications;
 import com.expenseassistant.expense.entity.Expense;
 import com.expenseassistant.expense.mapper.ExpenseMapper;
@@ -57,7 +59,7 @@ public class ExpenseService {
 
     @Transactional
     public ExpenseResponse create(Long userId, CreateExpenseRequest request) {
-        validateExpenseDate(request.expenseDate());
+        validateExpenseWrite(request);
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -70,10 +72,39 @@ public class ExpenseService {
         return expenseMapper.toResponse(expenseRepository.save(expense));
     }
 
+    @Transactional
+    public ExpenseResponse update(Long userId, Long id, UpdateExpenseRequest request) {
+        validateExpenseWrite(request);
+        Expense expense = expenseRepository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+        applyWriteFields(expense, request);
+        return expenseMapper.toResponse(expenseRepository.save(expense));
+    }
+
+    @Transactional
+    public void delete(Long userId, Long id) {
+        Expense expense = expenseRepository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+        expenseRepository.delete(expense);
+    }
+
     private void validateDateRange(LocalDate from, LocalDate to) {
         if (from != null && to != null && from.isAfter(to)) {
             throw new ValidationFailedException("from must be on or before to");
         }
+    }
+
+    private void validateExpenseWrite(ExpenseWriteFields request) {
+        validateExpenseDate(request.expenseDate());
+    }
+
+    private void applyWriteFields(Expense expense, ExpenseWriteFields request) {
+        expense.setAmount(request.amount());
+        expense.setCategory(request.category());
+        expense.setDescription(request.description());
+        expense.setExpenseDate(request.expenseDate());
     }
 
     private void validateExpenseDate(LocalDate expenseDate) {

@@ -5,7 +5,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,6 +19,7 @@ import com.expenseassistant.common.response.PageResponse;
 import com.expenseassistant.expense.dto.CreateExpenseRequest;
 import com.expenseassistant.expense.dto.ExpenseFilter;
 import com.expenseassistant.expense.dto.ExpenseResponse;
+import com.expenseassistant.expense.dto.UpdateExpenseRequest;
 import com.expenseassistant.expense.entity.ExpenseCategory;
 import com.expenseassistant.expense.service.ExpenseService;
 import com.expenseassistant.security.CurrentUserProvider;
@@ -162,6 +165,74 @@ class ExpenseControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.message").value("Invalid value for parameter 'id'"));
+    }
+
+    @Test
+    void update_returns200WithBody() throws Exception {
+        when(currentUserProvider.requireUserId()).thenReturn(1L);
+        Instant now = Instant.parse("2026-11-23T08:15:30Z");
+        ExpenseResponse updated = new ExpenseResponse(
+                5012L,
+                new BigDecimal("75.00"),
+                ExpenseCategory.BILLS,
+                "Updated",
+                LocalDate.of(2026, 11, 21),
+                now,
+                now);
+        when(expenseService.update(eq(1L), eq(5012L), any(UpdateExpenseRequest.class))).thenReturn(updated);
+
+        mockMvc.perform(put(EXPENSES + "/5012")
+                        .contentType(APPLICATION_JSON)
+                        .content(
+                                """
+                                {
+                                  "amount": 75.00,
+                                  "category": "BILLS",
+                                  "description": "Updated",
+                                  "expenseDate": "2026-11-21"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.amount").value(75.00))
+                .andExpect(jsonPath("$.category").value("BILLS"))
+                .andExpect(jsonPath("$.userId").doesNotExist());
+    }
+
+    @Test
+    void update_rejectsInvalidBody() throws Exception {
+        when(currentUserProvider.requireUserId()).thenReturn(1L);
+
+        mockMvc.perform(put(EXPENSES + "/1")
+                        .contentType(APPLICATION_JSON)
+                        .content(
+                                """
+                                {
+                                  "amount": 0,
+                                  "category": "FOOD",
+                                  "expenseDate": "2026-11-22"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void delete_returns204() throws Exception {
+        when(currentUserProvider.requireUserId()).thenReturn(1L);
+
+        mockMvc.perform(delete(EXPENSES + "/5012")).andExpect(status().isNoContent());
+    }
+
+    @Test
+    void delete_notFound_returns404() throws Exception {
+        when(currentUserProvider.requireUserId()).thenReturn(1L);
+        org.mockito.Mockito.doThrow(new ResourceNotFoundException("Expense not found"))
+                .when(expenseService)
+                .delete(1L, 999L);
+
+        mockMvc.perform(delete(EXPENSES + "/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Expense not found"));
     }
 
     @Test

@@ -37,6 +37,7 @@ Until JWT auth exists, the `dev` profile uses `DevCurrentUserProvider` so servic
 - Default user: `app.dev-user-id` (default **1**), seeded as `dev-user-a@example.com` / password `password`.
 - Second test user: id **2** (`dev-user-b@example.com`, same password).
 - Override in Postman or curl with header **`X-Dev-User-Id: 2`** to exercise isolation between users.
+- Postman: import [`postman/AI_Expense_Assistant.postman_collection.json`](postman/AI_Expense_Assistant.postman_collection.json) and [`postman/Local_Dev.postman_environment.json`](postman/Local_Dev.postman_environment.json) (Stage 2H).
 
 Seed data is applied only from `classpath:db/migration/dev` (enabled in `application-dev.yml`, not in production profile config). The app **refuses to start** if both `dev` and `prod` profiles are active while the dev provider is registered.
 

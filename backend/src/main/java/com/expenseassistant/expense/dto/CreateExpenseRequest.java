@@ -17,4 +17,5 @@ public record CreateExpenseRequest(
                 BigDecimal amount,
         @NotNull ExpenseCategory category,
         @Size(max = 255) String description,
-        @NotNull LocalDate expenseDate) {}
+        @NotNull LocalDate expenseDate)
+        implements ExpenseWriteFields {}
