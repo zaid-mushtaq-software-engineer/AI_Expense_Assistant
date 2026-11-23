@@ -4,6 +4,7 @@ import com.expenseassistant.common.response.PageResponse;
 import com.expenseassistant.expense.dto.CreateExpenseRequest;
 import com.expenseassistant.expense.dto.ExpenseFilter;
 import com.expenseassistant.expense.dto.ExpenseResponse;
+import com.expenseassistant.expense.dto.UpdateExpenseRequest;
 import com.expenseassistant.expense.entity.ExpenseCategory;
 import com.expenseassistant.expense.service.ExpenseService;
 import com.expenseassistant.security.CurrentUserProvider;
@@ -16,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +54,19 @@ public class ExpenseController {
     public ExpenseResponse get(@PathVariable Long id) {
         Long userId = currentUserProvider.requireUserId();
         return expenseService.get(userId, id);
+    }
+
+    @PutMapping("/{id}")
+    public ExpenseResponse update(@PathVariable Long id, @Valid @RequestBody UpdateExpenseRequest request) {
+        Long userId = currentUserProvider.requireUserId();
+        return expenseService.update(userId, id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        Long userId = currentUserProvider.requireUserId();
+        expenseService.delete(userId, id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping

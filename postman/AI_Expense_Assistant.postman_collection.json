@@ -1,0 +1,271 @@
+{
+  "info": {
+    "name": "AI Expense Assistant — Expenses & Analytics (Stage 2–3)",
+    "description": "Manual expense CRUD under /api/v1/expenses and read-only analytics under /api/v1/analytics. Dev profile: set {{baseUrl}} and optional {{devUserId}} (maps to X-Dev-User-Id). DELETE is non-idempotent: first delete returns 204; repeating delete on the same id returns 404 (expense already removed). Analytics date ranges are inclusive, from ≤ to, max 366 days.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create",
+      "item": [
+        {
+          "name": "Create expense — 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500.00,\n  \"category\": \"FOOD\",\n  \"description\": \"Dinner\",\n  \"expenseDate\": \"2026-11-22\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses"
+          }
+        },
+        {
+          "name": "Create — 400 zero amount",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 0,\n  \"category\": \"FOOD\",\n  \"expenseDate\": \"2026-11-22\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get",
+      "item": [
+        {
+          "name": "Get by id — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Get — 404 not found",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses/999999"
+          }
+        },
+        {
+          "name": "Get — 404 other user",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "2" }],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Get — 400 non-numeric id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses/not-a-number"
+          }
+        }
+      ]
+    },
+    {
+      "name": "List",
+      "item": [
+        {
+          "name": "List — 200 default page",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses?page=0&size=20"
+          }
+        },
+        {
+          "name": "List with filters — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses?from=2026-01-01&to=2026-12-31&category=FOOD&q=lunch&sort=expenseDate,desc"
+          }
+        },
+        {
+          "name": "List — 400 invalid sort",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses?sort=unknown,desc"
+          }
+        },
+        {
+          "name": "List — 400 from after to",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses?from=2026-02-01&to=2026-01-01"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update",
+      "item": [
+        {
+          "name": "Update — 200 full replace",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 125.00,\n  \"category\": \"BILLS\",\n  \"description\": \"Electricity\",\n  \"expenseDate\": \"2026-11-20\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Update — 404 other user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "2" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10.00,\n  \"category\": \"FOOD\",\n  \"expenseDate\": \"2026-11-22\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Update — 400 zero amount",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 0,\n  \"category\": \"FOOD\",\n  \"expenseDate\": \"2026-11-22\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete",
+      "item": [
+        {
+          "name": "Delete — 204",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Delete again — 404",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        },
+        {
+          "name": "Delete — 404 other user",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "X-Dev-User-Id", "value": "2" }],
+            "url": "{{baseUrl}}/api/v1/expenses/{{expenseId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Total spending — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/total?from=2026-11-01&to=2026-11-30"
+          }
+        },
+        {
+          "name": "By category — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/by-category?from=2026-11-01&to=2026-11-30"
+          }
+        },
+        {
+          "name": "By category — FOOD filter",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/by-category?from=2026-11-01&to=2026-11-30&category=FOOD"
+          }
+        },
+        {
+          "name": "Highest category — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/highest-category?from=2026-11-01&to=2026-11-30"
+          }
+        },
+        {
+          "name": "Monthly summary — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/monthly?year=2026&month=11"
+          }
+        },
+        {
+          "name": "Date-range report — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/report?from=2026-11-01&to=2026-11-23"
+          }
+        },
+        {
+          "name": "Total — 400 from after to",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/total?from=2026-02-01&to=2026-01-01"
+          }
+        },
+        {
+          "name": "Total — 400 range over 366 days",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/analytics/total?from=2025-01-01&to=2026-01-02"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "devUserId", "value": "1" },
+    { "key": "expenseId", "value": "1" }
+  ]
+}
