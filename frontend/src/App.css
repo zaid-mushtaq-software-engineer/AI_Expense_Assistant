@@ -1,0 +1,40 @@
+.health-page {
+  max-width: 32rem;
+  margin: 4rem auto;
+  padding: 2rem;
+  font-family: system-ui, sans-serif;
+  color: #0e1b2c;
+}
+
+.subtitle {
+  color: #5c6b7a;
+  margin-top: 0.25rem;
+}
+
+.meta code {
+  font-size: 0.9rem;
+  background: #e2e6ec;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.status {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+}
+
+.status.loading {
+  background: #e3f3f1;
+}
+
+.status.success {
+  background: #e3f3f1;
+  border: 1px solid #0f766e;
+}
+
+.status.error {
+  background: #fef3f2;
+  border: 1px solid #b42318;
+  color: #b42318;
+}
