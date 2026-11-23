@@ -1,0 +1,29 @@
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.sub {
+  color: var(--mut);
+  margin: 2px 0 0;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--mut);
+}
+
+.pager {
+  display: flex;
+  gap: 8px;
+}

@@ -1,32 +1,29 @@
-# React + TypeScript + Vite
+# AI Expense Assistant — Frontend (Stage 4)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript + Vite SPA for manual expense and analytics UI (no auth; dev backend supplies user via `dev` profile).
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cd frontend
+cp .env.example .env.development   # if needed
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Environment
+
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `VITE_API_BASE_URL` | `http://localhost:8080/api/v1` | REST client base path |
+| `VITE_DEV_USER_ID` | `1` (optional) | Sends `X-Dev-User-Id` for two-user isolation tests |
+
+Actuator health checks use the same host with `/api/v1` stripped.
+
+## Run
+
+```bash
+npm run dev    # default http://localhost:5173
+npm run build
+```
+
+Backend must run with `spring.profiles.active=dev` and CORS allowing the Vite origin.

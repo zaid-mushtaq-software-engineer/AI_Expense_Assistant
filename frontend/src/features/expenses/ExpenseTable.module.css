@@ -1,0 +1,73 @@
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  color: var(--mut);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+td {
+  padding: 11px 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.right {
+  text-align: right;
+}
+
+.rowLink {
+  color: inherit;
+}
+
+.rowLink:hover {
+  color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.cards {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .tableWrap {
+    display: none;
+  }
+
+  .cards {
+    display: flex;
+  }
+}

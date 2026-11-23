@@ -1,0 +1,41 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.seg {
+  display: inline-flex;
+  background: #e8ecf1;
+  border-radius: 9px;
+  padding: 3px;
+  flex-wrap: wrap;
+}
+
+.seg button {
+  border: 0;
+  background: none;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-weight: 600;
+  color: var(--mut);
+}
+
+.on {
+  background: #fff;
+  color: var(--ink);
+}
+
+.custom {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.custom input {
+  padding: 8px 10px;
+  border: 1px solid #cbd3dd;
+  border-radius: var(--radius-control);
+  font: inherit;
+}

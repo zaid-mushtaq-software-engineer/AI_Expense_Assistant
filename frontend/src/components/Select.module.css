@@ -1,0 +1,23 @@
+.field {
+  display: grid;
+  gap: 5px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.select {
+  padding: 8px 10px;
+  border: 1px solid #cbd3dd;
+  border-radius: var(--radius-control);
+  font: inherit;
+  background: #fff;
+  width: 100%;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 13px;
+}
