@@ -1,0 +1,21 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.bar input,
+.bar select {
+  padding: 8px 10px;
+  border: 1px solid #cbd3dd;
+  border-radius: var(--radius-control);
+  font: inherit;
+  background: #fff;
+}
+
+.search {
+  min-width: 160px;
+  flex: 1;
+}

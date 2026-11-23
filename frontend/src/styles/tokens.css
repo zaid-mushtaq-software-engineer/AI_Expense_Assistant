@@ -1,0 +1,25 @@
+:root {
+  --ink: #0e1b2c;
+  --bg: #f3f5f8;
+  --card: #ffffff;
+  --accent: #0f766e;
+  --accent-soft: #e3f3f1;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --danger: #b42318;
+  --mut: #5b6b7f;
+  --line: #e2e6ec;
+  --radius: 10px;
+  --radius-control: 8px;
+  --breakpoint-nav: 960px;
+
+  --cat-food: #f59e0b;
+  --cat-transportation: #3b82f6;
+  --cat-shopping: #ec4899;
+  --cat-entertainment: #8b5cf6;
+  --cat-health: #10b981;
+  --cat-education: #06b6d4;
+  --cat-bills: #ef4444;
+  --cat-travel: #f97316;
+  --cat-other: #94a3b8;
+}

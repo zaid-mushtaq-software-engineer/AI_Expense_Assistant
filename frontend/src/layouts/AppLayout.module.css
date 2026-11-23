@@ -1,0 +1,137 @@
+.app {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  min-height: 100vh;
+}
+
+.side {
+  background: var(--ink);
+  color: #cfd8e3;
+  padding: 22px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 17px;
+  padding: 0 8px 18px;
+}
+
+.logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+}
+
+.navLink {
+  color: #cfd8e3;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 500;
+}
+
+.navLink:hover {
+  background: #1a2c44;
+  color: #fff;
+}
+
+.navLinkActive {
+  background: #1a2c44;
+  color: #fff;
+}
+
+.navLinkDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.me {
+  margin-top: auto;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #93a3b8;
+}
+
+.main {
+  padding: 26px 30px;
+  max-width: 1180px;
+  width: 100%;
+}
+
+.topBar {
+  display: none;
+}
+
+.bottomNav {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .app {
+    grid-template-columns: 1fr;
+    padding-bottom: 64px;
+  }
+
+  .side {
+    display: none;
+  }
+
+  .topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--ink);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .main {
+    padding: 18px 14px;
+  }
+
+  .bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--line);
+    justify-content: space-around;
+    padding: 8px 4px;
+    z-index: 20;
+  }
+
+  .bottomNav a {
+    font-size: 11px;
+    color: var(--mut);
+    text-align: center;
+    padding: 4px 8px;
+  }
+
+  .bottomNav a.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+}

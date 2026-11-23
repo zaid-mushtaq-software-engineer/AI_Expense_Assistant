@@ -1,0 +1,24 @@
+.row {
+  height: 42px;
+  border-radius: var(--radius-control);
+  background: linear-gradient(90deg, #e8ecf1 25%, #f4f6f8 50%, #e8ecf1 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    animation: none;
+    background: #e8ecf1;
+  }
+}

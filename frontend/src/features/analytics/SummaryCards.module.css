@@ -1,0 +1,48 @@
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.label {
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.value {
+  font-size: 27px;
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--mut);
+}
+
+.up {
+  color: var(--danger);
+}
+
+.down {
+  color: var(--accent);
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
