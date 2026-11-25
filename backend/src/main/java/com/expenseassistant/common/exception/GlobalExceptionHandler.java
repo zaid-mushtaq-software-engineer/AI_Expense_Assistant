@@ -21,6 +21,8 @@ public class GlobalExceptionHandler {
 
     private static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     private static final String NOT_FOUND = "NOT_FOUND";
+    private static final String AI_UNAVAILABLE = "AI_UNAVAILABLE";
+    private static final String ACTION_EXPIRED = "ACTION_EXPIRED";
     private static final String INTERNAL_ERROR = "INTERNAL_ERROR";
     private static final String GENERIC_INTERNAL_MESSAGE = "An unexpected error occurred";
 
@@ -72,6 +74,33 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(
             ResourceNotFoundException ex, HttpServletRequest request) {
         return respond(HttpStatus.NOT_FOUND, NOT_FOUND, ex.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(PendingActionExpiredException.class)
+    public ResponseEntity<ErrorResponse> handlePendingActionExpired(
+            PendingActionExpiredException ex, HttpServletRequest request) {
+        return respond(
+                HttpStatus.GONE,
+                ACTION_EXPIRED,
+                ex.getMessage(),
+                request.getRequestURI(),
+                null);
+    }
+
+    @ExceptionHandler(AiUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleAiUnavailable(
+            AiUnavailableException ex, HttpServletRequest request) {
+        if (ex.getCause() != null) {
+            log.warn("AI assistant unavailable on {}: {}", request.getRequestURI(), ex.getCause().toString());
+        } else {
+            log.warn("AI assistant unavailable on {}", request.getRequestURI());
+        }
+        return respond(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                AI_UNAVAILABLE,
+                ex.getMessage(),
+                request.getRequestURI(),
+                null);
     }
 
     @ExceptionHandler(Exception.class)

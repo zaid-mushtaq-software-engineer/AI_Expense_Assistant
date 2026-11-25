@@ -1,5 +1,6 @@
 package com.expenseassistant.config;
 
+import com.expenseassistant.assistant.service.PendingActionProperties;
 import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +10,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-@EnableConfigurationProperties({CorsProperties.class, AppProperties.class})
+@EnableConfigurationProperties({CorsProperties.class, AppProperties.class, PendingActionProperties.class})
 public class CorsFilterConfig {
 
     private final CorsProperties corsProperties;

@@ -8,10 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.expenseassistant.security.DevCurrentUserProvider;
 import java.time.LocalDate;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,6 +28,15 @@ class AnalyticsApiLifecycleTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void cleanIsolatedRange() {
+        jdbcTemplate.update(
+                "DELETE FROM expenses WHERE user_id IN (1, 2) AND expense_date BETWEEN '2026-10-01' AND '2026-10-31'");
+    }
 
     @Test
     void analyticsIsolationAndAggregates() throws Exception {
