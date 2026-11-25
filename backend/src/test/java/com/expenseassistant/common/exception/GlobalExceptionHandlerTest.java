@@ -46,6 +46,27 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void actionExpired_returns410() throws Exception {
+        mockMvc.perform(get(BASE + "/action-expired"))
+                .andExpect(status().isGone())
+                .andExpect(jsonPath("$.status").value(410))
+                .andExpect(jsonPath("$.error").value("ACTION_EXPIRED"))
+                .andExpect(jsonPath("$.message").value(PendingActionExpiredException.USER_MESSAGE))
+                .andExpect(jsonPath("$.path").value(BASE + "/action-expired"));
+    }
+
+    @Test
+    void aiUnavailable_returns503() throws Exception {
+        mockMvc.perform(get(BASE + "/ai-unavailable"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("AI_UNAVAILABLE"))
+                .andExpect(jsonPath("$.message").value(AiUnavailableException.USER_MESSAGE))
+                .andExpect(jsonPath("$.path").value(BASE + "/ai-unavailable"))
+                .andExpect(jsonPath("$.fieldErrors").value(nullValue()));
+    }
+
+    @Test
     void unexpectedError_returnsGeneric500WithoutLeak() throws Exception {
         mockMvc.perform(get(BASE + "/boom"))
                 .andExpect(status().isInternalServerError())

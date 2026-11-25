@@ -33,6 +33,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +60,9 @@ class ExpenseServiceTest {
 
     @BeforeEach
     void setUp() {
-        expenseService = new ExpenseService(expenseRepository, userRepository, expenseMapper, CLOCK);
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        ExpenseWriteValidator writeValidator = new ExpenseWriteValidator(validator, CLOCK);
+        expenseService = new ExpenseService(expenseRepository, userRepository, expenseMapper, writeValidator);
     }
 
     @Test

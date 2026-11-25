@@ -261,11 +261,94 @@
           }
         }
       ]
+    },
+    {
+      "name": "Stage 8 – Conversations",
+      "item": [
+        {
+          "name": "List conversations — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/conversations?page=0&size=20"
+          }
+        },
+        {
+          "name": "Get conversation — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/conversations/{{conversationId}}"
+          }
+        },
+        {
+          "name": "Get conversation — 404 other user",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "2" }],
+            "url": "{{baseUrl}}/api/v1/conversations/{{conversationId}}"
+          }
+        },
+        {
+          "name": "List messages — 200",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Dev-User-Id", "value": "{{devUserId}}" }],
+            "url": "{{baseUrl}}/api/v1/conversations/{{conversationId}}/messages?page=0&size=50"
+          }
+        },
+        {
+          "name": "Chat — new conversation (set conversationId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hello, what can you help me with?\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/assistant/chat"
+          }
+        },
+        {
+          "name": "Chat — continue conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": {{conversationId}},\n  \"message\": \"How much did I spend this month?\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/assistant/chat"
+          }
+        },
+        {
+          "name": "Chat — 404 foreign conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Dev-User-Id", "value": "{{devUserId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": 999999,\n  \"message\": \"Hi\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/assistant/chat"
+          }
+        }
+      ]
     }
   ],
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080" },
     { "key": "devUserId", "value": "1" },
-    { "key": "expenseId", "value": "1" }
+    { "key": "expenseId", "value": "1" },
+    { "key": "conversationId", "value": "1" }
   ]
 }

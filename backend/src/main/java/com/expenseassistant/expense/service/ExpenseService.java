@@ -14,7 +14,6 @@ import com.expenseassistant.expense.mapper.ExpenseMapper;
 import com.expenseassistant.expense.repository.ExpenseRepository;
 import com.expenseassistant.user.entity.User;
 import com.expenseassistant.user.repository.UserRepository;
-import java.time.Clock;
 import java.time.LocalDate;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,17 +26,17 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
     private final ExpenseMapper expenseMapper;
-    private final Clock clock;
+    private final ExpenseWriteValidator expenseWriteValidator;
 
     public ExpenseService(
             ExpenseRepository expenseRepository,
             UserRepository userRepository,
             ExpenseMapper expenseMapper,
-            Clock clock) {
+            ExpenseWriteValidator expenseWriteValidator) {
         this.expenseRepository = expenseRepository;
         this.userRepository = userRepository;
         this.expenseMapper = expenseMapper;
-        this.clock = clock;
+        this.expenseWriteValidator = expenseWriteValidator;
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +58,7 @@ public class ExpenseService {
 
     @Transactional
     public ExpenseResponse create(Long userId, CreateExpenseRequest request) {
-        validateExpenseWrite(request);
+        expenseWriteValidator.validate(request);
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -74,7 +73,7 @@ public class ExpenseService {
 
     @Transactional
     public ExpenseResponse update(Long userId, Long id, UpdateExpenseRequest request) {
-        validateExpenseWrite(request);
+        expenseWriteValidator.validate(request);
         Expense expense = expenseRepository
                 .findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
@@ -96,10 +95,6 @@ public class ExpenseService {
         }
     }
 
-    private void validateExpenseWrite(ExpenseWriteFields request) {
-        validateExpenseDate(request.expenseDate());
-    }
-
     private void applyWriteFields(Expense expense, ExpenseWriteFields request) {
         expense.setAmount(request.amount());
         expense.setCategory(request.category());
@@ -107,11 +102,4 @@ public class ExpenseService {
         expense.setExpenseDate(request.expenseDate());
     }
 
-    private void validateExpenseDate(LocalDate expenseDate) {
-        LocalDate today = LocalDate.now(clock);
-        LocalDate maxAllowed = today.plusDays(1);
-        if (expenseDate.isAfter(maxAllowed)) {
-            throw new ValidationFailedException("Expense date cannot be more than one day in the future");
-        }
-    }
 }

@@ -10,7 +10,7 @@ Design docs: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) · Implementat
 |-----------|---------|--------|
 | Java | 21 | LTS |
 | Spring Boot | **3.4.6** | Pinned in `backend/pom.xml`; [start.spring.io](https://start.spring.io) currently offers Boot 4.x only — we stay on 3.4.x until Spring AI compatibility for Boot 4 is verified for this project |
-| Spring AI | **1.1.x** (planned) | Added in Stage 5; verify BOM against Boot 3.4.x at that stage |
+| Spring AI | **1.1.0** | BOM in `backend/pom.xml`; Google GenAI starter (Gemini Developer API) |
 | MySQL | 8.4 | Docker image in `docker-compose.yml` |
 
 ## Prerequisites
@@ -82,7 +82,113 @@ Flyway may warn that MySQL 8.4 is newer than its tested range; safe to ignore fo
    curl -s http://localhost:8080/actuator/health
    ```
 
-5. Tests (MySQL must be running, `DB_*` and `SPRING_PROFILES_ACTIVE=dev` set):
+### Gemini / Spring AI (Stage 5A)
+
+1. Create a free [Gemini Developer API key](https://aistudio.google.com/apikey).
+2. In `.env`, set `GEMINI_API_KEY` and `SPRING_AI_MODEL_CHAT=google-genai` (without both, the backend still starts but AI beans stay off).
+3. With the backend running under the `dev` profile and `GEMINI_API_KEY` set, the assistant chat API is available at `POST /api/v1/assistant/chat` (see Stage 5C below). If `SPRING_AI_MODEL_CHAT` is unset, the backend still starts but assistant beans stay off.
+
+   **Free tier (default model `gemini-3.5-flash-lite`):** about 15 requests/min and 500 requests/day per Google Cloud project (shared across all API keys in that project). Live limits: [AI Studio → Rate limits](https://aistudio.google.com/rate-limit). Do not send real customer PII on the free tier (Google may use prompts for model improvement). Gemini 3.5+ models do not use custom `temperature` in `application.yml`; output length is capped via `max-output-tokens`. For stronger reasoning experiments only, you can switch to `gemini-3.8-flash` in `application.yml` (much lower quota: ~5 RPM / 20 RPD).
+
+### System prompt (Stage 5B)
+
+Prompt template: `backend/src/main/resources/prompts/system.st`. Behaviour is exercised through the chat endpoint (Stage 5C).
+
+### Assistant chat (Stage 5C)
+
+Load env vars before starting (`set -a && source .env && set +a` from repo root). Chat persists to MySQL (`conversations`, `chat_messages`); LLM context uses `SPRING_AI_CHAT_MEMORY` (last 20 messages). History APIs: `GET /api/v1/conversations` and related routes.
+
+```bash
+curl -s -X POST http://localhost:8080/api/v1/assistant/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"What is today'\''s date?"}'
+```
+
+Expect `{"reply":"..."}`. Empty `message` → **400** `VALIDATION_ERROR`. Missing/invalid API key or provider errors → **503** `AI_UNAVAILABLE`. Optional header `X-Dev-User-Id` selects the dev user (same as other APIs until Stage 10).
+
+Try also: `"What did I spend this month?"` — the assistant should call **`getTotalSpending`** and match your analytics API (Stage 7A). Manual expense APIs keep working when the LLM is down.
+
+### Tool calling – total spending (Stage 7A)
+
+Chat can call **`getTotalSpending`** (no `userId` in the tool schema; the server passes it via `ToolContext`). Compare with REST:
+
+```bash
+curl -s "http://localhost:8080/api/v1/analytics/total?from=2026-11-01&to=2026-11-25"
+
+curl -s -X POST http://localhost:8080/api/v1/assistant/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"How much did I spend this month?"}'
+```
+
+The reply total should match `totalAmount` for the same date range and user. Use `X-Dev-User-Id: 2` to verify isolation. Tool call logging: `com.expenseassistant.assistant.tools` at DEBUG in the `dev` profile.
+
+### Analytics tools (Stage 7B)
+
+Chat also exposes **`getCategorySpending`**, **`getHighestSpendingCategory`**, **`getMonthlySummary`**, and **`getDateRangeReport`**. Compare chat answers with the matching REST endpoints for the same user and dates:
+
+| Chat example | REST |
+|---|---|
+| How much on food this month? | `GET /api/v1/analytics/by-category?from=…&to=…&category=FOOD` |
+| Which category is highest? | `GET /api/v1/analytics/highest-category?from=…&to=…` |
+| Compare October and November | Two `GET /api/v1/analytics/monthly?year=…&month=…` calls |
+| Spending report for a range | `GET /api/v1/analytics/report?from=…&to=…` |
+
+```bash
+curl -s -X POST http://localhost:8080/api/v1/assistant/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"How much did I spend on food this month?"}'
+```
+
+### Structured extraction (Stage 6A–6B)
+
+Debug/learning endpoint (does **not** save to the database). Returns `draft`, `missing` field names, and a clarification `question`:
+
+```bash
+curl -s -X POST http://localhost:8080/api/v1/assistant/extract \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"I spent ₹500 on dinner yesterday"}'
+```
+
+Examples to try manually: `"bus 40 rupees last Friday"`, `"coffee"`, `"spent 500"`. Extraction prompt: `backend/src/main/resources/prompts/extraction.st`. Stage 7 moves add-by-chat to the `addExpense` tool; this route may be removed in Stage 11.
+
+### Expense tools and clarification (Stage 7C–7E)
+
+Chat exposes **`searchExpenses`** and **`addExpense`** (same data paths as REST). Compare list/create with:
+
+```bash
+curl -s "http://localhost:8080/api/v1/expenses?from=2026-11-24&to=2026-11-25&size=20"
+
+curl -s -X POST http://localhost:8080/api/v1/assistant/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"What did I spend yesterday?"}'
+```
+
+| Chat example | Expected behaviour |
+|---|---|
+| What did I spend yesterday? | `searchExpenses` with concrete dates; real rows or honest empty result |
+| Show food expenses this week | `searchExpenses` with category=FOOD and week range |
+| I spent ₹500 on dinner yesterday | `addExpense` → row in DB and expense list UI |
+| Same complete add message twice | Two rows (documented duplicate behaviour) |
+
+**Clarification (7E)** — try these without expecting a DB row until details are clear:
+
+- `"Add dinner"` → assistant should ask amount/date; **no** expense row yet.
+- Follow up `"₹450 on food today"` → one row after `addExpense`.
+- `"spent 500 on stuff"` → category question before create.
+
+### Delete and edit by chat (Stage 7G–7H)
+
+- **`proposeExpenseDeletion(expenseId)`** — loads the expense, creates a pending action; the row stays until you confirm.
+- **`proposeExpenseUpdate(expenseId, …)`** — partial fields merged with the current expense; validated like REST `PUT`.
+- Chat response may include `pendingAction`: `{ actionId, type, summary, expiresAt }`.
+- **`POST /api/v1/assistant/actions/{actionId}/confirm`** — applies delete/update (single use).
+- **`POST /api/v1/assistant/actions/{actionId}/cancel`** — discards the proposal.
+
+TTL default **10** minutes (`app.pending-action.ttl-minutes`). Typing “yes” in chat does **not** confirm — only the confirm endpoint does.
+
+**Postman sketch:** create an expense → chat “delete expense {id}” (or search then propose) → copy `pendingAction.actionId` → `POST …/confirm` with dev user → expense gone; `cancel` leaves it unchanged.
+
+6. Tests (MySQL must be running, `DB_*` and `SPRING_PROFILES_ACTIVE=dev` set):
 
    ```bash
    set -a && source .env && set +a

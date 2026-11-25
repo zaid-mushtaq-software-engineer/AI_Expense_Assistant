@@ -32,6 +32,16 @@ class ExceptionProbeController {
         throw new RuntimeException("secret internal detail");
     }
 
+    @GetMapping("/ai-unavailable")
+    void aiUnavailable() {
+        throw new AiUnavailableException();
+    }
+
+    @GetMapping("/action-expired")
+    void actionExpired() {
+        throw new PendingActionExpiredException();
+    }
+
     @PostMapping("/valid-body")
     void validBody(@Valid @RequestBody ProbeRequest request) {
     }

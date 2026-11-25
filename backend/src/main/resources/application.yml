@@ -1,12 +1,35 @@
 spring:
   application:
     name: expense-assistant
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: never
+    model:
+      chat: none
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:${LLM_API_KEY:}}
+        chat:
+          options:
+            model: gemini-3.5-flash-lite
+            max-output-tokens: 1024
+    retry:
+      max-attempts: 3
+      backoff:
+        initial-interval: 2s
+        multiplier: 2
+        max-interval: 15s
 
 server:
   port: 8080
 
 app:
   timezone: Asia/Kolkata
+  pending-action:
+    ttl-minutes: 10
 
 management:
   endpoints:
